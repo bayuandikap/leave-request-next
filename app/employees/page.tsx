@@ -2,6 +2,7 @@
 import { Suspense } from 'react';
 import AddEmployeeForm from './AddEmployeeForm';
 import Link from 'next/link';
+import EmployeeTableClient from './EmployeeTableClient';
 
 interface Employee {
   id: number;
@@ -31,51 +32,7 @@ async function getEmployees(): Promise<Employee[]> {
 // 2. Komponen khusus untuk render tabel (Server Component terpisah)
 async function EmployeeTable() {
   const employees = await getEmployees();
-
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nama</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Email</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Posisi</th>
-            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Role</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200 text-sm">
-          {employees.length === 0 ? (
-            <tr>
-              <td colSpan={5} className="px-6 py-8 text-center text-gray-400">
-                Belum ada data karyawan. Silakan tambah data pertama di form atas.
-              </td>
-            </tr>
-          ) : (
-            employees.map((emp) => (
-              <tr key={emp.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 font-mono text-gray-500">#{emp.id}</td>
-                <td className="px-6 py-4 font-medium text-gray-900">{emp.name}</td>
-                <td className="px-6 py-4 text-gray-600">{emp.email}</td>
-                <td className="px-6 py-4 text-gray-600">{emp.position}</td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      emp.role === 'hr'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}
-                  >
-                    {emp.role}
-                  </span>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+  return <EmployeeTableClient employees={employees} />;
 }
 
 // 3. Fallback placeholder / skeleton saat data sedang diambil
