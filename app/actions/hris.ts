@@ -31,20 +31,32 @@ export async function addEmployee(formData: FormData) {
 }
 
 // Action 2: Update Status Cuti (Approve / Reject)
-export async function updateLeaveStatus(id: number, status: 'approved' | 'rejected') {
-  const res = await fetch(`${API_URL}/leaves/${id}/status`, {
+export async function updateLeaveStatus(
+  id: number,
+  status: 'approved' | 'rejected',
+  rejectionReason?: string
+) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://leave-request-backend-production.up.railway.app';
+  const targetUrl = `${baseUrl}/api/leaves/${id}/status`;
+
+  const res = await fetch(targetUrl, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({
+      status,
+      rejection_reason: rejectionReason || null,
+    }),
+    cache: 'no-store',
   });
 
   if (!res.ok) {
-    return { success: false, message: 'Gagal memperbarui status cuti' };
+    const errorData = await res.json().catch(() => null);
+    throw new Error(`Gagal update status: ${JSON.stringify(errorData)}`);
   }
 
   revalidatePath('/leaves');
-  return { success: true, message: `Pengajuan cuti berhasil di-${status}` };
+  return { success: true };
 }
